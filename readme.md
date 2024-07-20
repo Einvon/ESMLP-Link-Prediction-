@@ -1,4 +1,4 @@
-方法介绍（Intro）
+方法（Intro Inscriptions）
 ----
 (中文)
 
@@ -21,7 +21,7 @@ The specific code file can be found in demo.py,
 which compares the AUC indicators of the other five types of link prediction methods with the ESMLP method.
 
 
-测试数据介绍（Data for Test Inscriptions）
+数据（Data Inscriptions）
 ----
 （中文）
 
@@ -58,3 +58,15 @@ Use the median to determine whether they are adjacent or not; The test set is a 
 4.USAir data: United States aviation network USAir data, a total of 332 node samples,
 from the paper of Lv Linyuan and Huang Lu et al. (Lv Linyuan, 2010; Huang Lu et al., 2019),
 the training set and test set are real route conditions.
+
+代码依赖（Dependencies Inscriptions）
+----
+具体依赖库请见requiremets.txt（Python > 3.6）
+
+See requiremets.txt for specific dependencies (Python > 3.6)
+
+论文参考（Ref）
+----
+暂无。
+
+Unavailable now.

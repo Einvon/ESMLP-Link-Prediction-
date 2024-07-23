@@ -2,7 +2,7 @@
 ----
 (中文)
 
-一种效率优先视角下基于路径的链路预测方法，自然指数相似矩阵链路预测方法（ESMLP），对相似矩阵展开式使用了指数函数（e^x）展开形式。
+一种侧重成本的基于路径的链路预测方法，自然指数相似矩阵链路预测方法（ESMLP），对相似矩阵展开式使用了指数函数（e^x）展开形式。
 
 该方法更适用于侧重于降低成本的拓扑网络，如石油管线、铁路线的预测。
 
@@ -10,7 +10,7 @@
 
 （English）
 
-A path-based link prediction method from the perspective of efficiency priority, 
+A cost focused path based link prediction method, 
 the Natural Exponential Similarity Matrix Link Prediction Method (ESMLP), 
 uses the exponential function (e^x) expansion form for the similarity matrix expansion.
 

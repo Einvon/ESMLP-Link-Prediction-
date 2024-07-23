@@ -4,7 +4,7 @@
 
 一种效率优先视角下基于路径的链路预测方法，自然指数相似矩阵链路预测方法（ESMLP），对相似矩阵展开式使用了指数函数（e^x）展开形式。
 
-该方法更适用于强调效率优先的拓扑网络，如石油管线、铁路线的预测。
+该方法更适用于侧重于降低成本的拓扑网络，如石油管线、铁路线的预测。
 
 具体代码文件请见demo.py，该文件对比了其它五大类链路预测方法与ESMLP方法的AUC指标情况。
 
@@ -14,7 +14,7 @@ A path-based link prediction method from the perspective of efficiency priority,
 the Natural Exponential Similarity Matrix Link Prediction Method (ESMLP), 
 uses the exponential function (e^x) expansion form for the similarity matrix expansion.
 
-This method is more suitable for topological networks that emphasize efficiency first, 
+This method is more suitable for topology networks that focus on reducing costs, 
 such as the prediction of oil pipelines and railway lines.
 
 The specific code file can be found in demo.py, 

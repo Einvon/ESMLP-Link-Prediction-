@@ -10,37 +10,38 @@ from sklearn import metrics
 class Esmlp:
     """
 
-    介绍
+    Intro
     ----------------------------
-    训练集和测试集可以使用matrix_adjacency自动划分。
+    This class provides apis to process the esmlp method in link -predictions.
 
-    调用接口
+    You can use the 'matrix_divide' function to divide raw datas into training sets and test sets.
+
+    API
     ----------------------------
 
     Esmlp.matrix_adjacency(node_num: int, ori_data: np.array) -> np.array
-    该函数提供了由节点关系到空间邻接矩阵的转换。
+    This function provides a transformation from a node relation to a spatial adjacency matrix.
 
     Esmlp.matrix_divide(ori_data: np.array,
                   matrix_data: np.array,
                   node_num: int,
                   train_per: float = 0.8) -> Tuple[np.array, np.array]
-    该函数提供了训练集与测试集的划分。
+    This function provides a division of training sets and test sets.
 
     instance.process(self) -> None:
-    该函数用于执行链路预测过程。
+    This function provides an api to run the process.
 
-    输出
+    OutPut
     ----------------------------
-    输出为打表及CSV写入。
+    Prints(default) or csv files(if you choose).
 
-    作者
+    Author
     ----------------------------
     ZQH、CXY
-    详情请见Github仓库：
 
     """
 
-    # ========功能实现部分========
+    # ========InnerClass========
 
     def __new__(cls,
                 train_matrix:np.array,
@@ -50,40 +51,40 @@ class Esmlp:
                 parameter: Union[float, None] = None,
                 write: bool = False):
         """
-        构造函数。
-        :param train_matrix: 空间邻接矩阵（或训练集）
-        :param test_matrix: 真实链路矩阵（或测试集）
-        :param node_num: 节点数
-        :param eco_matrix: 经济权重矩阵（如默认为None则无经济指标作为门限）
-        :param parameter: 除Esmlp模型外的模型最优参数（如默认为None则使用默认参数）
-        :param write: 是否将预测结果写入CSV表（如默认为False则不写入）
+        New function.
+        :param train_matrix: train sets.
+        :param test_matrix: test sets.
+        :param node_num: nodes counts.
+        :param eco_matrix: Prior(economic) knowledge.
+        :param parameter: parameter in link predictions
+        :param write: whether to write results into csv files.
         """
         if train_matrix.ndim <= 1:
-            raise ValueError(f'训练集维度错误为{train_matrix.ndim}。')
+            raise ValueError(f'The training set dimension={train_matrix.ndim} is incorrect.')
         if eco_matrix is not None:
             if eco_matrix.ndim <= 1:
-                raise ValueError(f'经济权重矩阵维度错误为{eco_matrix.ndim}。')
+                raise ValueError(f'The economic weight matrix dimension={eco_matrix.ndim} is incorrectly correct.')
         if test_matrix.ndim <= 1:
-            raise ValueError(f'测试集维度错误为{test_matrix.ndim}。')
+            raise ValueError(f'The test set dimension={test_matrix.ndim} is incorrectly correct.')
         if int(train_matrix.shape[0]) != int(test_matrix.shape[0]) or int(train_matrix.shape[1]) != int(test_matrix.shape[1]):
-            raise ValueError(f'训练集{train_matrix.shape}与测试集{test_matrix.shape}维度不一致，请重新划分训练集与测试集。')
+            raise ValueError(f'The {train_matrix.shape} and {test_matrix.shape} dimensions of the training set are different from those of the test set, reclassify the training set and the test set.')
         rows: int = len(train_matrix)
         if rows != node_num:
-            raise ValueError(f'输入的节点数={node_num}与训练集的维度={rows}不符。')
+            raise ValueError(f'The number of nodes entered = {node_num} does not match the dimension of the training set = {rows}. ')
         for row in train_matrix:
             if len(row) != rows:
-                raise AttributeError(f'训练集不是方阵，请尝试使用Esmlp.matrix_adjacency方法转换为方阵。')
+                raise AttributeError(f'The training set is not a square, try using the Esmlp.matrix_adjacency method to convert it into a square.')
         if eco_matrix is not None:
             rows: int = len(eco_matrix)
             if rows != node_num:
-                raise ValueError(f'输入的节点数={node_num}与先验经济数据的维度={rows}不符。')
+                raise ValueError(f'The number of nodes entered = {node_num} does not correspond to the dimension of a priori economic data = {rows}.')
             for row in eco_matrix:
                 if len(row) != rows:
-                    raise AttributeError(f'经济权重矩阵矩阵不是方阵。')
+                    raise AttributeError(f'The economic weight matrix matrix is not a square.')
         rows: int = len(test_matrix)
         for row in test_matrix:
             if len(row) != rows:
-                raise AttributeError(f'测试集不是方阵。')
+                raise AttributeError(f'The test set is not a square.')
         instance: Esmlp = super().__new__(cls)
         return instance
 
@@ -95,13 +96,13 @@ class Esmlp:
                  parameter: Union[float, None] = None,
                  write: bool = False) -> None:
         """
-        属性函数。
-        :param train_matrix: 空间邻接矩阵（或训练集）
-        :param test_matrix: 真实链路矩阵（或测试集）
-        :param node_num: 节点数
-        :param eco_matrix: 经济指标矩阵（如默认为None则无经济指标作为门限）
-        :param parameter: 除Esmlp模型外的模型最优参数（如默认为None则使用默认参数）
-        :param write: 是否将预测结果写入CSV表（如默认为False则不写入）
+        Init function.
+        :param train_matrix: train sets.
+        :param test_matrix: test sets.
+        :param node_num: nodes counts.
+        :param eco_matrix: Prior(economic) knowledge.
+        :param parameter: parameter in link predictions
+        :param write: whether to write results into csv files.
         """
         self.train_matrix: np.array = train_matrix
         self.test_matrix: np.array = test_matrix
@@ -119,9 +120,9 @@ class Esmlp:
 
     @staticmethod
     def matrix_adjacency(ori_data: np.array) -> np.array:
+        # This function provides a transformation from a node relation to a spatial adjacency matrix.
         """
-        该函数提供了由节点关系到空间邻接矩阵转换。
-        :param ori_data: 原始节点关系
+        :param ori_data: node relations.
         """
         list_one: list = []
         list_two: list = []
@@ -133,7 +134,7 @@ class Esmlp:
         node_num: int = int(max(max(list_one), max(list_two))) + 1
         matrix_adjacency: np.array = np.zeros([node_num, node_num])
         if len(ori_data[0]) != 2 or len(ori_data[1]) != 2:
-            raise AttributeError(f'原始空间节点关系的列维度错误为{len(ori_data[0]), len(ori_data[1])}，请注意该维度为2。')
+            raise AttributeError(f'The column dimension of the original space node relationship is incorrectly {len(ori_data[0]), len(ori_data[1])}, note that the dimension is 2.')
         for column in range(ori_data.shape[0]):
             i: int = int(ori_data[column][0])
             j: int = int(ori_data[column][1])
@@ -146,12 +147,12 @@ class Esmlp:
                       matrix_data: np.array,
                       node_num: int,
                       train_per: float = 0.8) -> Tuple[np.array, np.array]:
+        # This function provides a division of training sets and test sets.
         """
-        该函数提供了训练集与测试集的划分。
-        :param ori_data: 原始节点关系
-        :param matrix_data: 原始节点的邻接矩阵
-        :param node_num: 节点数
-        :param train_per: 测试集占比（此项可以自己更改，默认0.8）
+        :param ori_data: node relations.
+        :param matrix_data: spatial adjacency matrix.
+        :param node_num: node counts.
+        :param train_per: percent that train sets compare to raw datas.
         """
         train_per: float = train_per
         ori_data: np.array = ori_data
@@ -193,10 +194,9 @@ class Esmlp:
         return train_matrix, test_matrix
 
     def __calauc(self, similarity_matrix: np.array) -> float:
+        # This function is to calculate AUC from results.
         """
-        该函数用于计算AUC值。
-        :param self: 实例
-        :param similarity_matrix: 预测结果的相似矩阵
+        :param similarity_matrix: similarity_matrix.
         """
         simi_ravel: np.array = np.ravel(similarity_matrix)
         test_ravel: np.array = np.ravel(self.test_matrix)
@@ -208,10 +208,7 @@ class Esmlp:
         return auc
 
     def __get_parameters(self) -> float:
-        """
-        获取具备经济意义的参数参考值。
-        :param self: 实例
-        """
+        # This function is to calculate parameters using prior(economic) knowledge.
         model: GLM = sm.GLM(np.ravel(self.eco_matrix), np.ravel(self.train_matrix @ self.eco_matrix))
         res_glm = model.fit()
         estimated_parameters: np.array = res_glm.params
@@ -219,16 +216,15 @@ class Esmlp:
             estimated_parameter: float = float(np.mean(estimated_parameters))
             return estimated_parameter
         else:
-            raise AttributeError(f'对现有经济指标的参数拟合失败，请重新寻找经济指标作为门限。')
+            raise AttributeError(f'The parameters of the existing economic indicator fail to fit, please find another economic indicator as the prior knowledge(thresholds).')
 
-    # ========方法实现部分========
+    # ========Methods========
 
     def __katz(self) -> Tuple[np.array, float]:
         """
-        Katz链路预测方法（基于路径）。
-        :param self: 实例
+        Katz Method.
         """
-        # katz_parameter这一参数可以自己更改
+        # katz_parameter is changeable
         katz_parameter: float = self.parameter if self.parameter is not None else 0.01
         identity_matrix: np.array = np.eye(self.train_matrix.shape[0])
         temp: np.array = self.train_matrix - self.train_matrix * katz_parameter
@@ -238,10 +234,9 @@ class Esmlp:
 
     def __lnh(self) -> Tuple[np.array, str]:
         """
-        LNH-I链路预测方法（基于路径）。
-        :param self: 实例
+        LNH-I Method.
         """
-        # 该方法无先验参数
+        # no parameters for such method
         similarity_matrix: np.array = np.dot(self.train_matrix, self.train_matrix)
         deg_row = sum(self.train_matrix)
         deg_row.shape = (deg_row.shape[0], 1)
@@ -252,10 +247,9 @@ class Esmlp:
 
     def __lp(self) -> Tuple[np.array, float]:
         """
-        LP链路预测方法（Katz方法变种）。
-        :param self: 实例
+        LP Method.
         """
-        # lp_parameter这一参数也可以自己更改
+        # lp_parameter is changeable
         lp_parameter: float = self.parameter if self.parameter is not None else 1
         similarity_matrix: np.array = np.dot(self.train_matrix, self.train_matrix)
         temp: np.array = np.dot(np.dot(self.train_matrix, self.train_matrix), self.train_matrix) * lp_parameter
@@ -264,10 +258,9 @@ class Esmlp:
 
     def __sorenson(self) -> Tuple[np.array, str]:
         """
-        Sorenson链路预测方法(LNH方法变种)。
-        :param self: 实例
+        Sorenson Method.
         """
-        # 该方法无先验参数
+        # no parameters for such method
         similarity_matrix: np.array = np.dot(self.train_matrix, self.train_matrix)
         deg_row = sum(self.train_matrix)
         deg_row.shape = (deg_row.shape[0], 1)
@@ -278,10 +271,9 @@ class Esmlp:
 
     def __ra(self) -> Tuple[np.array, str]:
         """
-        RA链路预测方法(传统链路预测方法/基于共同邻居)。
-        :param self: 实例
+        RA Method.
         """
-        # 该方法无先验参数
+        # no parameters for such method
         ra_train = sum(self.train_matrix)
         ra_train.shape = (ra_train.shape[0], 1)
         temp_train_log: np.array = self.train_matrix / ra_train
@@ -291,18 +283,16 @@ class Esmlp:
 
     def __esmlp(self) -> Tuple[np.array, float]:
         """
-        ESMLP链路预测方法(本文方法)。
-        :param self: 实例
+        ESMLP Method.
         """
-        # 该方法可有先验参数可无先验参数
         if self.parameter is not None and self.eco_matrix is not None:
-            raise AttributeError(f'使用经济指标进行计算参数下仍声明了先验参数={self.parameter}。')
+            raise AttributeError(f'The prior parameter = {self.parameter} is still declared under ESMLP method.')
         elif self.parameter is not None and self.eco_matrix is None:
             esmlp_parameter: float = self.parameter
         elif self.parameter is None and self.eco_matrix is not None:
             esmlp_parameter: float = self.__get_parameters()
         else:
-            raise AttributeError('ESMLP方法在未声明经济指标情况下也未给予先验参数。')
+            raise AttributeError('The ESMLP method does not give a priori parameters without declaring economic indicators.')
         temp: np.array = esmlp_parameter * self.train_matrix
         for ind in range(len(temp)):
             for jnd in range(len(temp[0])):
@@ -311,128 +301,126 @@ class Esmlp:
         similarity_matrix: np.array = temp
         return similarity_matrix, esmlp_parameter
 
-    # ========调用实现部分========
+    # ========Process========
 
     def process(self) -> None:
         """
-        执行接口。
-        :param self: 实例
+        This function provides an api to run the process.
         """
         pre_result: dict = {'Method':['Katz','LNH-I','LP','Sorenson','RA','ESMLP'],
                             'AUC':[],
                             'Parameter':[]}
-        print('=======预测备注=======')
-        print('备注：所有结果均保留四位小数')
+        print('=======Info=======')
+        print('Info：keep four decimal places.')
         if self.eco_matrix is not None:
-            print('备注：对ESMLP方法参数使用了经济矩阵。')
+            print('Info：prior knowledge used.')
         if self.parameter is not None:
-            print(f'备注：对所有方法均使用了先验参数={self.parameter}')
-        print('=======预测备注=======')
-        print('正在执行，请稍等...')
-        # Katz方法
+            print(f'Info: parameter={self.parameter}')
+        print('=======Info=======')
+        print('processing...')
+        # Katz
         simi_matrix_katz, parameter_katz = self.__katz()
         auc_katz: float = self.__calauc(similarity_matrix=simi_matrix_katz)
         pre_result['AUC'].append(format(auc_katz,'.4f'))
         pre_result['Parameter'].append(format(parameter_katz,'.4f'))
-        # LNH-I方法
+        # LNH-I
         simi_matrix_lnh, parameter_lnh = self.__lnh()
         auc_lnh: float = self.__calauc(similarity_matrix=simi_matrix_lnh)
         pre_result['AUC'].append(format(auc_lnh,'.4f'))
         pre_result['Parameter'].append(parameter_lnh)
-        # LP方法
+        # LP
         simi_matrix_lp, parameter_lp = self.__lp()
         auc_lp: float = self.__calauc(similarity_matrix=simi_matrix_lp)
         pre_result['AUC'].append(format(auc_lp,'.4f'))
         pre_result['Parameter'].append(format(parameter_lp,'.4f'))
-        # Sorenson方法
+        # Sorenson
         simi_matrix_so, parameter_so = self.__sorenson()
         auc_so: float = self.__calauc(similarity_matrix=simi_matrix_so)
         pre_result['AUC'].append(format(auc_so,'.4f'))
         pre_result['Parameter'].append(parameter_so)
-        # RA方法
+        # RA
         simi_matrix_ra, parameter_ra = self.__ra()
         auc_ra: float = self.__calauc(similarity_matrix=simi_matrix_ra)
         pre_result['AUC'].append(format(auc_ra,'.4f'))
         pre_result['Parameter'].append(parameter_ra)
-        # ESMLP方法
+        # ESMLP
         simi_matrix_es, parameter_es = self.__esmlp()
         auc_es: float = self.__calauc(similarity_matrix=simi_matrix_es)
         pre_result['AUC'].append(format(auc_es,'.4f'))
         pre_result['Parameter'].append(format(parameter_es,'.4f'))
-        print('=======预测结果=======')
+        print('=======Result=======')
         print(f'{pre_result}')
-        print('=======预测结果=======')
+        print('=======Result=======')
         if self.write is False:
-            print('未设置将结果写入，预测流程结束。')
+            print('No write.')
         else:
             data_esmlp: DataFrame = pd.DataFrame(simi_matrix_es)
             data_esmlp.to_csv(f'ESMLP_RESULT_PAR={self.parameter}.csv')
-            print(f'已将结果写入ESMLP_RESULT_PAR={self.parameter}.csv，预测流程结束。')
+            print(f'Write results into ESMLP_RESULT_PAR={self.parameter}.csv, completed')
 
-# ========代码示范========
+# ========Demo========
 if __name__ == '__main__':
-    # COLoil数据
+    # COLoil
     '''
     train_set: np.array = (pd.read_csv('COLoil_Train.csv')).values
     eco_set: np.array = (pd.read_csv('COLoil_Eco.csv')).values
     test_set: np.array = (pd.read_csv('COLoil_Test.csv')).values
-    # prediction_one用于计算ESMLP的参数
+    # prediction_one to get the parameter of ESMLP(using prior economic knowledge)
     prediction_one = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=24, eco_matrix=eco_set)
     prediction_two = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=24, parameter=0.2290)
     prediction_one.process()
     prediction_two.process()
     '''
-    # GZRway数据
+    # GZRway
     '''
     train_set: np.array = (pd.read_csv('GZRway_Train.csv')).values
     eco_set: np.array = (pd.read_csv('GZRway_Eco.csv')).values
     test_set: np.array = (pd.read_csv('GZRway_Test.csv')).values
-    # prediction_one用于计算ESMLP的参数
+    # prediction_one to get the parameter of ESMLP(using prior economic knowledge)
     prediction_one = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=23, eco_matrix=eco_set)
     prediction_two = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=23, parameter=0.1980)
     prediction_one.process()
     prediction_two.process()
     '''
-    # HNRway数据
+    # HNRway
     '''
     train_set: np.array = (pd.read_csv('HNRway_Train.csv')).values
     eco_set: np.array = (pd.read_csv('HNRway_Eco.csv')).values
     test_set: np.array = (pd.read_csv('HNRway_Test.csv')).values
-    # prediction_one用于计算ESMLP的参数
+    # prediction_one to get the parameter of ESMLP(using prior economic knowledge)
     prediction_one = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=17, eco_matrix=eco_set)
     prediction_two = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=17, parameter=0.1909)
     prediction_one.process()
     prediction_two.process()
     '''
-    # CSJRway数据
+    # CSJRway
     '''
     train_set: np.array = (pd.read_csv('CSJRway_Train.csv')).values
     eco_set: np.array = (pd.read_csv('CSJRway_Eco.csv')).values
     test_set: np.array = (pd.read_csv('CSJRway_Test.csv')).values
-    # prediction_one用于计算ESMLP的参数
+    # prediction_one to get the parameter of ESMLP(using prior economic knowledge)
     prediction_one = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=26, eco_matrix=eco_set)
     prediction_two = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=26, parameter=0.1690)
     prediction_one.process()
     prediction_two.process()
     '''
-    # USAir数据(数据处理)
+    # USAir
     '''
-    # 数据处理过程
+    # data pre-processing
     ori_set: np.array = (pd.read_csv('USAir.csv')).values
     ori_data_matrix: np.array = Esmlp.matrix_adjacency(ori_data=ori_set)
     train_data, test_data = Esmlp.matrix_divide(ori_data=ori_set, matrix_data=ori_data_matrix, node_num=332)
     pd.DataFrame(train_data).to_csv(f'USAir_Train.csv')
     pd.DataFrame(test_data).to_csv(f'USAir_Test.csv')
     '''
-    # USAir数据(如果是重新读取，先在excel中把数据的第一列删掉，因为pd默认按第一行作为指键值)
     '''
     train_set: np.array = (pd.read_csv('USAir_Train.csv')).values
     test_set: np.array = (pd.read_csv('USAir_Test.csv')).values
-    # prediction_one用于计算ESMLP的参数
+    # prediction_one to get the parameter of ESMLP(using prior economic knowledge)
     prediction_one = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=332, parameter=0.1)
     prediction_one.process()
     '''
-    # USAir数据(重复上面的操作得到不同参数下的结果并绘制折线图)
+    # Plot USAir
     '''
     pred_data = pd.read_csv('draw.csv')
     x_par = np.array(pred_data['Par'])
@@ -456,8 +444,3 @@ if __name__ == '__main__':
     plt.legend(labels=['Katz','LNH-I','LP','Sorenson','RA','ESMLP'], loc='best')
     plt.show()
     '''
-
-
-
-
-

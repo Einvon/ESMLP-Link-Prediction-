@@ -19,7 +19,7 @@ class Esmlp:
 
     Esmlp.matrix_adjacency(node_num: int, ori_data: np.array) -> np.array
     该函数提供了由节点关系到空间邻接矩阵的转换。
-    
+
     Esmlp.matrix_divide(ori_data: np.array,
                   matrix_data: np.array,
                   node_num: int,
@@ -36,7 +36,7 @@ class Esmlp:
     作者
     ----------------------------
     ZQH、CXY
-    详情请见ReadMe
+    详情请见Github仓库：
 
     """
 
@@ -68,11 +68,15 @@ class Esmlp:
         if int(train_matrix.shape[0]) != int(test_matrix.shape[0]) or int(train_matrix.shape[1]) != int(test_matrix.shape[1]):
             raise ValueError(f'训练集{train_matrix.shape}与测试集{test_matrix.shape}维度不一致，请重新划分训练集与测试集。')
         rows: int = len(train_matrix)
+        if rows != node_num:
+            raise ValueError(f'输入的节点数={node_num}与训练集的维度={rows}不符。')
         for row in train_matrix:
             if len(row) != rows:
                 raise AttributeError(f'训练集不是方阵，请尝试使用Esmlp.matrix_adjacency方法转换为方阵。')
         if eco_matrix is not None:
             rows: int = len(eco_matrix)
+            if rows != node_num:
+                raise ValueError(f'输入的节点数={node_num}与先验经济数据的维度={rows}不符。')
             for row in eco_matrix:
                 if len(row) != rows:
                     raise AttributeError(f'经济权重矩阵矩阵不是方阵。')
@@ -372,6 +376,7 @@ if __name__ == '__main__':
     train_set: np.array = (pd.read_csv('COLoil_Train.csv')).values
     eco_set: np.array = (pd.read_csv('COLoil_Eco.csv')).values
     test_set: np.array = (pd.read_csv('COLoil_Test.csv')).values
+    # prediction_one用于计算ESMLP的参数
     prediction_one = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=24, eco_matrix=eco_set)
     prediction_two = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=24, parameter=0.2290)
     prediction_one.process()
@@ -382,8 +387,9 @@ if __name__ == '__main__':
     train_set: np.array = (pd.read_csv('GZRway_Train.csv')).values
     eco_set: np.array = (pd.read_csv('GZRway_Eco.csv')).values
     test_set: np.array = (pd.read_csv('GZRway_Test.csv')).values
-    prediction_one = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=21, eco_matrix=eco_set)
-    prediction_two = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=21, parameter=0.2207)
+    # prediction_one用于计算ESMLP的参数
+    prediction_one = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=23, eco_matrix=eco_set)
+    prediction_two = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=23, parameter=0.1980)
     prediction_one.process()
     prediction_two.process()
     '''
@@ -392,8 +398,20 @@ if __name__ == '__main__':
     train_set: np.array = (pd.read_csv('HNRway_Train.csv')).values
     eco_set: np.array = (pd.read_csv('HNRway_Eco.csv')).values
     test_set: np.array = (pd.read_csv('HNRway_Test.csv')).values
+    # prediction_one用于计算ESMLP的参数
     prediction_one = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=17, eco_matrix=eco_set)
     prediction_two = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=17, parameter=0.1909)
+    prediction_one.process()
+    prediction_two.process()
+    '''
+    # CSJRway数据
+    '''
+    train_set: np.array = (pd.read_csv('CSJRway_Train.csv')).values
+    eco_set: np.array = (pd.read_csv('CSJRway_Eco.csv')).values
+    test_set: np.array = (pd.read_csv('CSJRway_Test.csv')).values
+    # prediction_one用于计算ESMLP的参数
+    prediction_one = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=26, eco_matrix=eco_set)
+    prediction_two = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=26, parameter=0.1690)
     prediction_one.process()
     prediction_two.process()
     '''
@@ -406,10 +424,11 @@ if __name__ == '__main__':
     pd.DataFrame(train_data).to_csv(f'USAir_Train.csv')
     pd.DataFrame(test_data).to_csv(f'USAir_Test.csv')
     '''
-    # USAir数据(下面重新读取时记得先在excel中把数据的第一列删掉，因为pd默认是按第一行作为指标值的)
+    # USAir数据(如果是重新读取，先在excel中把数据的第一列删掉，因为pd默认按第一行作为指键值)
     '''
     train_set: np.array = (pd.read_csv('USAir_Train.csv')).values
     test_set: np.array = (pd.read_csv('USAir_Test.csv')).values
+    # prediction_one用于计算ESMLP的参数
     prediction_one = Esmlp(train_matrix=train_set, test_matrix=test_set, node_num=332, parameter=0.1)
     prediction_one.process()
     '''
@@ -437,6 +456,7 @@ if __name__ == '__main__':
     plt.legend(labels=['Katz','LNH-I','LP','Sorenson','RA','ESMLP'], loc='best')
     plt.show()
     '''
+
 
 
 
